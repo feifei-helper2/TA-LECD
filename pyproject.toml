@@ -1,0 +1,18 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "ta-lecd"
+version = "0.1.0"
+description = "Tolerance-aware ensemble consensus with linear exchange coordinate descent"
+readme = "README.md"
+requires-python = ">=3.10"
+dependencies = ["numpy>=1.24", "scipy>=1.10", "numba>=0.59"]
+
+[project.scripts]
+ta-lecd = "ta_lecd.cli:main"
+
+[tool.setuptools.packages.find]
+include = ["ta_lecd*"]
+
