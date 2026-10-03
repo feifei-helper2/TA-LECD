@@ -1,15 +1,6 @@
-"""Exact leave-one-partition-out signature compression.
+"""Group samples by their base labels with one partition omitted.
 
-For each sample i and base partition r, ``group_ids[i, r]`` is an exact
-integer identifier for the tuple of all base-partition labels except r.
-Two samples share the same group id for r iff their base signatures agree
-on every partition other than r.
-
-The construction uses prefix/suffix equivalence-class refinement and therefore
-avoids materializing O(m)-length Python tuples inside the solver.  It is exact
-(no probabilistic hashing) and runs in expected O(nm) time because the Python
-maps use integer-pair keys.
-"""
+Prefix/suffix IDs avoid copying a full signature for each omitted column."""
 from __future__ import annotations
 
 from dataclasses import dataclass
@@ -23,7 +14,7 @@ class ProjectedSignatures:
 
 
 def _refine_pair_ids(a: np.ndarray, b: np.ndarray) -> tuple[np.ndarray, int]:
-    """Assign exact class IDs to integer pairs (a[i], b[i])."""
+    """Assign a shared ID to equal integer pairs."""
     n = a.shape[0]
     out = np.empty(n, dtype=np.int32)
     table: dict[tuple[int, int], int] = {}
@@ -40,19 +31,9 @@ def _refine_pair_ids(a: np.ndarray, b: np.ndarray) -> tuple[np.ndarray, int]:
 
 
 def build_projected_signatures(enc: np.ndarray) -> ProjectedSignatures:
-    """Build exact leave-one-column-out signature group IDs.
+    """Return group IDs for an (n, m) encoded partition matrix.
 
-    Parameters
-    ----------
-    enc:
-        Integer-encoded base partitions, shape (n_samples, n_partitions).
-
-    Returns
-    -------
-    ProjectedSignatures
-        ``group_ids[:, r]`` groups samples that are identical on all base
-        partitions except r.
-    """
+    Samples share group_ids[:, r] when all labels except column r agree."""
     enc = np.ascontiguousarray(enc, dtype=np.int32)
     if enc.ndim != 2:
         raise ValueError("enc must be a 2-D integer array")
