@@ -1,4 +1,4 @@
-"""Public estimator for the complete TA-LECD algorithm."""
+"""TA-LECD estimator."""
 from __future__ import annotations
 
 import time
@@ -18,14 +18,10 @@ def _integer(name, value, minimum=1):
 
 
 class TALECD:
-    """Cluster an (n_samples, n_partitions) matrix of base labels.
+    """Consensus clustering from an (n_samples, n_partitions) label matrix.
 
-    Parameters delta and eta control the tolerance interval and lower-side
-    penalty. The upper-side penalty weight is one.
-    Every fit performs adaptive weighting, relocation, and exact E1 exchanges.
-    ``converged_`` is true only after joint closure and weight stationarity.
-    A limit returns a feasible iterate with ``converged_ = False``.
-    """
+    converged_ requires joint relocation/exchange closure and stationary
+    weights. Hitting an iteration limit returns a feasible, unconverged result."""
 
     def __init__(self, n_clusters, lambda_=1e-3, gamma=2.0, delta=0.25,
                  eta=0.5, seed=2026, max_outer=50, cd_max_sweeps=1000,
@@ -106,5 +102,5 @@ class TALECD:
         return self
 
     def fit_predict(self, members, init_labels=None):
-        """Fit and return consensus labels; no ground-truth labels are used."""
+        """Fit the model and return consensus labels."""
         return self.fit(members, init_labels=init_labels).labels_.copy()
