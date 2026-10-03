@@ -71,12 +71,9 @@ def rebuild_counts(y: np.ndarray, prob: TAProblem):
 
 
 def exact_alpha_update(W: np.ndarray, gamma: float, zero_tol: float = 1e-14) -> np.ndarray:
-    """Exact minimizer of sum_r W_r alpha_r^gamma on the simplex.
+    """Minimize sum_r W_r * alpha_r**gamma on the simplex.
 
-    Handles zero-loss views without numerical overflow.  If one or more W_r
-    are numerically zero, any simplex mass supported on those zero-loss views
-    is optimal; we use the uniform distribution over that support.
-    """
+    If losses are numerically zero, distribute weight uniformly among them."""
     W = np.asarray(W, dtype=float)
     gamma = float(gamma)
     if not np.isfinite(gamma) or gamma <= 1.0:
