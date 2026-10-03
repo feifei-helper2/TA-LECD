@@ -2,12 +2,9 @@ import numpy as np
 from scipy import sparse
 
 def litekmeans_compat(X, k, seed=2026, max_iter=100):
-    """
-    Lloyd initialization for dense or sparse partition representations:
-      - sample initialization
-      - squared Euclidean Lloyd iterations
-      - farthest-point repair from non-singleton donor clusters
-    """
+    """Lloyd initialization with sampled centers.
+
+    Repair empty clusters using farthest samples from non-singleton donors."""
     n = X.shape[0]
     if not isinstance(k, (int, np.integer)) or not 1 <= k <= n:
         raise ValueError("k must be an integer satisfying 1 <= k <= n_samples.")
@@ -36,8 +33,7 @@ def litekmeans_compat(X, k, seed=2026, max_iter=100):
             missing = np.setdiff1d(np.arange(k), uniq)
             aa = (np.asarray(X.multiply(X).sum(axis=1)).ravel()
                   if sparse.issparse(X) else np.sum(X*X, axis=1))
-            # Visit samples by decreasing distance without emptying a donor.
-            # Update counts after each move; this also handles repeated rows.
+            # Update donor counts after each move to avoid creating another empty cluster.
             ranked = np.argsort(aa + val)[::-1]
             live_counts = np.bincount(label, minlength=k)
             cursor = 0
